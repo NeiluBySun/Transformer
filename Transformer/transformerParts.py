@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
-from math import sin,cos
+from torch.nn import functional as F
+
+from math import sin,cos,sqrt
 
 class Transformer():
     def __init__(self,encoder,decoder) -> None:
@@ -28,14 +30,33 @@ class EncoderBlock():
     def __init__(self,context,heads:int,) -> None:
         pass
     
-class SelfAttentionHead():
-    def __init__(self,emgbedding_size:int,vectors_size:int) -> None:
-        Wq = torch.tensor((),requires_grad=True)
+class SelfAttentionHead(nn.Module):
+    def __init__(self,embedding_size:int,vectors_size:int) -> None:
+        super(SelfAttentionHead, self).__init__()
+        self.Wq = torch.rand((embedding_size, vectors_size),requires_grad=True)
+        self.Wk = torch.rand((embedding_size,vectors_size),requires_grad=True)
+        self.Wv = torch.rand((embedding_size,vectors_size),requires_grad=True)
+        self.d_sqrt = sqrt(vectors_size)
+        self.softmax = nn.Softmax(1)
+    def forward(self,context_embedings):
+        Q = context_embedings@self.Wq
+        K = context_embedings@self.Wk
+        V = context_embedings@self.Wv
+        
+        return self.softmax(Q@K.T/(self.d_sqrt))@V
         
         
-class MultiHeadAttention():
-    def __init__(self,heads,vectors_size:int) -> None:
-        pass
+class MultiHeadAttention(nn.Module):
+    def __init__(self,heads,embedding_size:int,vectors_size:int) -> None:
+        super(MultiHeadAttention, self).__init__()
+        self.AttentionHeads = [SelfAttentionHead(embedding_size,vectors_size) for i in range(heads)]
+        self.z = torch.tensor([])
+        self.Wo = torch.rand((vectors_size*heads,embedding_size),requires_grad=True)
+    def forward(self,context_embedings):
+        for head in self.AttentionHeads:
+            self.z = torch.cat((self.z,head(context_embedings)),dim=1)
+        return self.z@self.Wo
+    
     
     
 class FeedForward(nn.Module):
