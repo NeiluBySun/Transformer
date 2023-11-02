@@ -1,6 +1,7 @@
 import transformerParts
 import torch
 
+eb = transformerParts.EncoderBlock(4,10)
 
-mha = transformerParts.MultiHeadAttention(4,3,2)
+print(eb(torch.rand(10,10)).size())
 
