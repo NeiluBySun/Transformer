@@ -1,7 +1,9 @@
 import transformerParts
 import torch
 
-eb = transformerParts.EncoderBlock(4,10)
+encoder = transformerParts.Encoder(3,100,20,5,5)
 
-print(eb(torch.rand(10,10)).size())
+encoder(torch.tensor([1,2,3,4,5]))
+
+
 
